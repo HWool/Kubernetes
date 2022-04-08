@@ -328,3 +328,255 @@ kubeadm 툴은 kube-proxy를 각 노드에 파드로 배포한다.
 <img src=./image/image26.png>
 실제로, kube-proxy는 daemonset으로 배포된다. So a single POD is always deployed on each node in the cluster.
 (daemon set는 아직 안배웠음 ) 
+
+<br>
+
+## Recap - PDS
+
+<br>
+
+K8S의 Worker node는 직접 컨테이너를 배포하지 않느다.
+<img src=./image/image27.png>   
+컨테이너는 'POD'FKSMS K8S 오브젝트 안에 캡슐처럼 감싸져 있고, POD는 애플리케이션의 한 인스턴스이며, K8S에서 만들 수 있는 가장 작은 오브젝트이다.
+
+<b>Q1. 애플리케이션에 액세스하는 사용자 수가 증가하고 애플리케이션을 확장해야 하는 경우 트래픽을 분산시키려면 웹 애플리케이션의 인스턴스를 추가해야 하는데, 어떤 방식으로 추가할까?</b>   
+
+<br>
+
+A1.   
+동일한 애플리케이션의 동일한 POD에 새 인스턴스를 추가하기. --- (X)   
+동일한 애플리케이션의 새로운 POD에 새 인스턴스를 추가하기. --- (O)   
+
+<br>
+
+<b>Q2. 사용자 기반이 더 증가하고 현재 Node에 충분한 요량이 없으면 어떻게 할까?</b>
+
+<br>
+
+A2. 언제든지 새 Node에 추가 POD를 배포할 수 있다.
+
+<b> 즉, 결론은 POD는 일반적으로 애플리케이션을 운영하는 컨테이너들과 일대일 관계를 가진다. </b>
+
+To scale up, create new pods. To scale down, delete existing pods.
+애플리케이션의 스케일을 키우기 위해 이미 존재하는 파드에 추가적으로 컨테이너를 추가해서
+는 안된다.   
+
+<br>
+
+## Multy-Container PODs
+
+<br>
+
+한 개의 POD에 여라 개의 컨테이너가 있을 수 있다. 단, 컨테이너의 종류는 달라야 한다.
+
+> Example 
+
+<img src=./image/image28.png>   
+
+Hepler-Container를 애플리케이션 Container와 함께 사용할 수 있다. (둘의 성격이 다름)   
+(Helper Container : 사용자 처리, 데이터 입력, 사용자가 업로드한 파일 처리 등 웹 응용 프로그램에 대한 지원 작업을 수행하는 Container)   
+
+예시와 같은 상황이라면 동일한 POD에 Container를 포함시킬 수 있고, 애플리케이션 Container가 생성되면 Helper Container도 같이 생성되고, 삭제되면 같이 삭제된다.
+
+두 개의 컨테이너는 동일한 POD 안에 속해 있기 때문에 localhost를 참조해 서로 직접 통신할 수도 있고, 저장 공간도 쉽게 공유할 수 있다.
+
+Docker 호스트에 애플리케이션을 배포하기 위한 프로세스 또는 스크립트를 개발중이라고 가정.   
+그런 다음 Python 애플리케이션을 배포하면 정상적으로 실행되어 사용자가 액세스할 수 있다. 부하가 증가하면 명령을 여러 번 실행하여 Python 애플리케이션 인스턴스를 더 많이 도입한다.
+
+```
+# docker run python-app
+# docker run python-app
+# docker run helper –link app1
+# docker run helper –link app2 # 도우미 컨테이너는 애플리케이션 컨테이너와 1대1 관계를 유지하므로 애플리케이션 개수와 같이 생성
+```
+=> 이때, 우리는 두 컨테이너를 연결 짓는 map을 유지해야 한다.   
+즉, link와 custom network를 이용해 네트워크 연결성 (network connectivity)를 설치한다.   
+=> 이에 따라 또 공유 가능한 Volumes, 공유된 것들, 또 이를 위한 map이 필요하다.   
+=> 또, 애플리케이션의 상태를 모니터링해야 할 필요가 있다.   
+
+이러한 것들을 쿠버네티스는 자동으로 처리해준다.
+
+<b> ※ Multi Pod Container는 드문 사용 사례임 ※ </b>
+
+<br>
+
+### POD Deploy
+
+<br>
+
+```
+# kubectl run nginx --image nginx       # DockerHub에서 이미지를 가져와서 POD 배포
+# kubectl get pods                      # 확인.
+```
+이미지는 DockerHub에서 다운로드 한다.
+
+-> 아직은 네트워크 서비스가 이루어지지 않음.
+
+YAML in Kubernetes
+```yaml
+pod-definition.yaml
+---
+apiVersion: v1                      # string
+kind: Pod                           # string
+metadata:                           # 사전형
+    name: myapp-pod                 # string
+    labels:                         # 사전형
+        app: myapp  
+        tier: front-end
+spec:
+    containers:                     # List/Array
+        - name: nginx-container     # '-'은 첫 번째 항목임을 나타낸다.
+          image: nginx
+---
+# kubectl apply -f pod-definition.yaml
+# kubectl get pods
+# kubectl describe pod myapp-pod
+```
+
+몇 가지 예시
+|Kind|apiVersion|
+|----|----------|
+|Pod|v1|
+|Service|v1|
+|Deployment|apps/v1|
+|ReplicaSet|apps/v1|
+apiVersion, kind, metadata, spec은 필수 요소   
+metadata : 해당 오브젝트에 관한 데이터를 가지고 있다.   
+metadata의 이름과 라벨 앞에 공백 수는 중요하지 않지만, 같은 선상에 있어야 한다.   
+선상이 같지 않으면 하위 항목이 된다.
+
+<br>
+
+## Recap - ReplicaSets
+
+<br>
+
+Controller Manager는 쿠버네티스 오브젝트들을 모니터링하고 그에 맞는 행동을 취해준다.   
+여기서는 많은 컨트롤러 중 replication controller에 대해 살펴보자.   
+
+<b>Q. Replica는 무엇이며 Replication Controller는 왜 필요할까?</b>
+
+Hint - If ) 애플리케이션을 실행하는 단일 POD가 있는데, 어떠한 이유로 애플리케이션이 충돌하고 POD가 Fail이 된다면??   
+-> 사용자가 애플리케이션에 액세스 할 수 없게 되어, 애플리케이션을 사용할 수 없다.   
+
+<A. 여러 인스턴스 또는 POD를 동시에 실행을 하면 1개에 장애가 발생해도 애플리케이션은 계속 실행된다. Replication Controller는 이 싱글 POD를 여러 개 운영하는 데 도움을 줌으로써 <b>고가용성</b>을 제공한다.   
+
+Replication Controller를 사용하는 또 다른 이유는 <b>Load Balancing</b> 과 <b>Scaling</b> 때문이다.   
+
+Replication Controller는 여러 POD 운영을 통해 Load를 공유 가능하게 한다.   
+앞서 말했듯, 사용자의 접근량은 계속 늘어나는 와중에 노드의 자원이 부족해지면, 클러스터 내 다른 노드에 POD를 추가적으로 배포한다. 그리고 Replication Controller가 클러스터에서 그 노드들 모두에 걸처져 있다고 보면된다.
+
+<img src=./image/image29.png>   
+즉, 이처럼 여러 노드에 파드를 생성함으로써 트랙픽을 나눔으로써 로드밸런싱을 가능하게 하고, 수요가 늘 때 애플리케이션의 크기를 늘릴 수 있다.
+
+<br>
+
+<b> ReplicaSets 이점 </b>
+***
+\- 고가용성   
+\- Load Balancing   
+\- Scaling
+
+<h3> Replication Controller & Replica Set  </h3>
+
+***
+위 두 가지는 같은 목적을 가지고 있지만, 같은 것은 아니다.   
+Replication Controller은 후자보다 오래된 기술이고 Replica Set으로 대체되고 있다.   
+Replica Set이 더 권장되는 추세.   
+
+지금까지 위에서 배운 것들은 두 기술 모두에 해당되는 내용이다.
+
+<br>
+
+## Deployments
+
+<br>
+
+IF ) Production 환경에 배포해야 하는 웹 서버가 있다.   
+\- 하나가 아닌 여러 개의 Instance를 운영하기를 원함.   
+\- Docker 레지스트리에서 최신 버전이 나올 때마다 Docker Instancd를 원활하게 업그레이드를 하고 싶음
+
+But ) Instancd를 업그레이드를 할 대 모든 Instance를 한 번에 하고 싶지는 않고 사용중인 User가 있을 수 있기 때문에 순차적으로 진행하고 싶음.
+
+> 이러한 업그레이드를 <b>Rolling Upgrade</b>라고 한다.
+
+<br>
+
+IF ) Rolling Upgrade를 사용을 하게 되면
+업그레이드를 진행했을 때 예기치 않은 오류가 발생하여 실행 취소 메시지가 표시가 되는 상황이 있더라도
+
+-> 최근에 수행된 변경사항으로 롤백할 수 있음.
+
+***
+그 외 이점
+***
+기본 Web Server 버전 업그레이드, 환경 확장 및 리소스 할당 변경 등 환경을 여러 번 변경할 수 있음.
+
+위 사항들을 K8S Deployment가 있기에 가능하다.
+
+<br>
+
+<img src=./image/image30.png>   
+컨테이너는 POD에 캡슐화되어 있으며, 이러한 POD는 Replication Controllers 또는 Replica Set를 사용하여 배포된다.
+
+( Deployment는 ReplicaSet의 상위 객체 )
+
+> <b> 결론 </b>
+
+Deployment는 Rolling 업데이트를 사용하여 기본 Instancd를 원할하게 업그레이드하고, 변경 내용을 실행 취소하며, 필요에 따라 변경 내용을 일시 중지 및 재개할 수 있다.
+
+<br>
+
+### Create Deployment
+
+<br>
+
+전반적으로 ReplicaSet의 YAML 형태와 유사하다.
+``` yaml
+deployment-definition.yml
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+         app: myapp
+         type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+  replicas: 3
+  selector:
+    matchLabels:
+	type: front-end
+```
+```
+kubectl create –f deployment-definition.yaml
+kubectl get deployments
+kubectl get replicaset
+kubectl get pods
+```
+> output
+```
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+myapp-deployment   3/3     3            3           2m37s
+```
+```
+NAME                          DESIRED   CURRENT   READY   AGE
+myapp-deployment-7df67f74c5   3         3         3       2m26s
+```
+```
+NAME                                READY   STATUS    RESTARTS   AGE
+myapp-deployment-7df67f74c5-c7nqt   1/1     Running   0          2m13s
+myapp-deployment-7df67f74c5-lms6d   1/1     Running   0          2m13s
+myapp-deployment-7df67f74c5-spxpb   1/1     Running   0          2m13s
+```
