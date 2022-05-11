@@ -43,7 +43,7 @@ k8s cluster에서 구동되는 차트 인스턴스이며 Chart로 배포된 app�
 ## 1. Helm 시작하기
 <br>
 
-Helm 설치 ( Kubernetes Cluster가 구성된 환경에서 설치 해야 한다 )
+Helm 설치 ( Kubernetes Cluster가 구성된 환경에서 설치 해야 한다. [kubernetes 설치](https://github.com/HWool/Kubernetes.git) )
 ```sh
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh
