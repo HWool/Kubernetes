@@ -13,29 +13,23 @@ Helm을 보다 잘 사용하기 위해서는 3가지 주요 개념을 알아야 
 - Release
 
 <br>
-<br>
 
-## 1. Chart (차트)
+### 1. Chart (차트)
 
-***
 yaml 파일로 정의한 Helm의 패키지로, k8s cluster에서 애플리케이션이 기동되기 위해 필요한 모든 리소스들이 포함되어 있다.
 
 <br>
-<br>
 
-## 2. Repository (저장소)
-***
+### 2. Repository (저장소)
+
 차트 저장소로, 차트를 모아두고 공유하는 장소.
 
 <br>
-<br>
 
-## 3. Release (릴리즈)
-***
+### 3. Release (릴리즈)
 
 k8s cluster에서 구동되는 차트 인스턴스이며 Chart로 배포된 app들은 각각 고유한 버전을 갖고 있다. 일반적으로 동일한 Chart를 여러 번 설치할 수 있고, 이는 새로운 Release로 관리되게 된다. Release될 때 패키지된 차트와 Config가 결합되어 정상 실행되게 된다.
 
-<br>
 <br>
 
  <b> 간단한 진행 순서 </b>
@@ -47,9 +41,6 @@ k8s cluster에서 구동되는 차트 인스턴스이며 Chart로 배포된 app�
 <br>
 
 ## 1. Helm 시작하기
-<br>
-
-***
 <br>
 
 Helm 설치 ( Kubernetes Cluster가 구성된 환경에서 설치 해야 한다 )
@@ -73,13 +64,8 @@ version.BuildInfo{Version:"v3.7.0", GitCommit:"eeac83883cb4014fe60267ec637357037
 ## 2. Helm 사용하기
 <br>
 
-***
-<br>
-
 ### 2-1. 차트 Repository 추가 및 업데이트
 ***
-<br>
-
 Helm Chart를 사용하기 위해 repository 추가
 ```sh
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -122,8 +108,6 @@ helm repo update
 
 ### 2-2. Package 설치하기.
 ***
-<br>
-
 `helm innstall` 명령어를 이용하여 패키지를 설치한다.
 - Syntax  :   helm install [Release_NAME] [CHART] [flags]
 
@@ -151,12 +135,10 @@ NAME                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
 postgresql-v1            ClusterIP   10.110.15.51   <none>        5432/TCP   14m
 postgresql-v1-headless   ClusterIP   None           <none>        5432/TCP   14m
 ```
+<br>
 
 ### 2-3. Upgrade & Rollback
 ***
-
-<br>
-
 새로운 버전의 차트가 릴리스 되거나 구성을 변경할 때는 `helm update` 명령어 사용
 
 ```sh
@@ -182,11 +164,10 @@ helm rollback postgresql-v1 1 --namespace db
 
 Rollback was a success! Happy Helming!
 ```
+<br>
 
 ### 2-4. Release 삭제하기.
 ***
-<br>
-
 릴리스를 삭제하기 위해서는 `helm uninstall` 명령 사용.   
 uninstall 실행 시 릴리스는 바로 삭제되기 때문에 Rollback 불가능
 ```sh
