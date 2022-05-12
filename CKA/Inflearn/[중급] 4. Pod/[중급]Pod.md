@@ -6,18 +6,18 @@
 
 인간의 Lifecycle
 
-<img src=./image/pod1-1.PNG>
+<img src=../image/pod1-1.PNG>
 
 사람은 태어나서 유아기 -> 청소년 -> 청년 -> 노인 이라는 Lifecycle이 있다.
 
 POD의 Lifecycle
 
-<img src=./image/pod1-2.PNG>
+<img src=../image/pod1-2.PNG>
 
 인간의 Lifecyle과 같이 4가지 단계가 있다.
 Lifecycle 같은 경우 각 단계에 따라 행해지는 행동이 다르다.
 
-<img src=./image/pod1-3.PNG>
+<img src=../image/pod1-3.PNG>
 
 Pod가 있고, `Status` 안에 Pod의 전체 상태를 대표하는 속성인 `Phase`가 있다.
 그리고 Pod가 생성되면서 실행하는 단계들이 있는데, 그 단계와 상태를 알려주는 것이 `Conditions`이다. Pod 안에는 Container들이 있고, 그 각각의 컨테이너들의 `State`라고 해서 컨테이너를 대표하는 상태가 있다.
@@ -31,7 +31,7 @@ ContainerStatuses에는
 `State`가 존재하고 Waitinmg, Running, Terminated 3가지가 존재한다.
 Conditions와 마찬가지로 `Reason`도 존재한다.
 
-<img src=./image/pod1-4.PNG>
+<img src=../image/pod1-4.PNG>
 
 Pod의 최초 상태는 Pending이다.
 pod가 어느 노드 위에 올라갈지 결정이 되면 `PodScheduled: True`
@@ -65,7 +65,7 @@ Job이나 CronJob으로 생성된 pod의 경우 자신의 일을 수행할 때�
 
 ---
 
-<img src=./image/pod2-1.PNG>
+<img src=../image/pod2-1.PNG>
 
 pod를 만들면 컨테이너가 생기고, running 상태가 되면서 app이 잘 동작을 하게 될 것이다.
 service와 연결을 하게 되면 외부에서 실시간으로 app에 접근을 할 수 있을 것이다.
@@ -87,7 +87,7 @@ pod를 만들 때 LivenessProbe를 주게 되면 해당 에러가 생기면 파�
 
 ---
 
-<img src=./image/pod2-2.PNG>
+<img src=../image/pod2-2.PNG>
 
 ReadinessProb, LivenessProbe는 사용 목적이 틀를 뿐 설정은 비슷하다.
 크게 `httpGet`, `Exec`, `tcpSocket`으로 app에 대한 상태를 확인한다.
@@ -105,7 +105,7 @@ timeoutSeconds는 지정된 시간까지 결과가 와야한다.
 sucessThreshold는 몇 번 성공 결과를 받아야 정말로 성공으로 인정을 할 것인지
 failureThreshold는 몇 번 실패 결과를 받아야 정말로 실패로 인정을 할 것인지에 대한 값이다.
 
-<img src=./image/pod2-3.PNG>
+<img src=../image/pod2-3.PNG>
 
 한 서비스의 파드가 연결되어 있는 상태에서 파드를 하나 더 만들 것인데, 컨테이너의 hostpath로 node의 볼륨이 연결되어 있다. 이 컨테이너에 ReadinessProb를 설정을 할 것임.
 
@@ -115,7 +115,7 @@ failureThreshold는 몇 번 실패 결과를 받아야 정말로 실패로 인�
 
 이런한 False 상태가 지속되면 Service의 Endpoint는 `NotReadyAddr`로 생각하고 연결을 하지 않는다,
 
-<img src=./image/pod2-4.PNG>
+<img src=../image/pod2-4.PNG>
 
 한 서비스의 두 파드가 동작 중임.
 k8s는 /health가 있는지 확인을 할 것이다. 만약 3회동안 실패를 하게된다면 k8s 문제가 있다고 생각하고 pod를 restart를 하게 된다.
@@ -126,7 +126,7 @@ k8s는 /health가 있는지 확인을 할 것이다. 만약 3회동안 실패를
 
 ---
 
-<img src=./image/pod3-1.PNG>
+<img src=../image/pod3-1.PNG>
 
 1. Node에 resource가 있고, pod들이 이 자원을 균등하게 사용하고 있을 때,
    pod1에서 더 많은 자원이 필요한 상황이 발생했다. 하지만 node에는 자원양이 남아 있지 않는데, 이러면 pod1은 자원 부족으로 down이 되어야 할까?
@@ -145,7 +145,7 @@ QoS는 특정 속성이 있어서 설정을 하는 것은 아니고, container�
 
 ---
 
-<img src=./image/pod3-2.PNG>
+<img src=../image/pod3-2.PNG>
 
 1. Guaranteed는 pod에 여러 컨테이너가 있다면 모두 request와 limit가 있어야하고, mem과 cpu가 설정이 되어야 한다. 그리고 그 값들은 같아야 한다.
 
@@ -155,7 +155,7 @@ QoS는 특정 속성이 있어서 설정을 하는 것은 아니고, container�
 
 -> 3 가지 클래스는 request와 limit를 어떻게 설정하느냐에 따라서 결정이 되는 것이다.
 
-<img src=./image/pod3-3.PNG>
+<img src=../image/pod3-3.PNG>
 
 Burstables 같은 경우에는 여러 컨테이너가 있을 때 어떤 컨테이너가 먼저 삭제되는지에 대해서도 알 필요가 있다.
 
@@ -166,7 +166,7 @@ Burstables 같은 경우에는 여러 컨테이너가 있을 때 어떤 컨테�
 
 # 4. Node Scheduling
 
-<img src=./image/pod4-1.PNG>
+<img src=../image/pod4-1.PNG>
 K8S에서 POD를 어떤 노드에 할당할지 자동으로 정해줄 수 있고, 때로는 직접 정할 수도 있다.
 
 K8S에서 직접 노드 설정하는 방법.
@@ -205,8 +205,8 @@ Node5는 높은 사양의 그래픽을 필요로 하는 웹을 돌리기 위한 
 
 ---
 
-<img src=./image/pod4-2.PNG>
-<img src=./image/pod4-3.PNG>
+<img src=../image/pod4-2.PNG>
+<img src=../image/pod4-3.PNG>
 
 `matchExpressions`라는 속성을 통해서 pod는 node들을 선택할 수 있는데, key를 그룹핑 단위로 그리고 파드를 하위 식별자로 붙어진 라벨들이 노드에 붙여져 있고, key가 kr인 그룹안에 할당을 하고 싶을 때 matchExpressions를 사용할 수 있다.
 
@@ -214,7 +214,7 @@ Node5는 높은 사양의 그래픽을 필요로 하는 웹을 돌리기 위한 
 required 속성을 가진 파드가 있다면, 이 속성의 값이 있는 노드가 있지 않다면, 할당되지 않는다.
 하지만 preferred 속성을 가진 파드가 있다면, 이 속성의 값을 선호할 뿐이고 없더라도 노드에 할당시켜준다.
 
-<img src=./image/pod4-4.PNG>
+<img src=../image/pod4-4.PNG>
 preferred 속성에는 `weight`라는 필수 속성이 있는데, key가 다른 node가 두 개가 있고, cpu의 값도 다르다. 
 하나의 파드를 생성하는데, preferred의 속성 값이 두 개가 있는데, 두 개 노드 모두 일치해, cpu가 높은 node1으로 할당해주는 게 맞지만, `weight`라는 옵션을 통해 달라질 수 있다.
 key가 us인 node weight는 10이고, kr인 node weight는 50인데, 스케쥴러는 최초 노드1에 50 노드 2에 30의 점수를 주었지만, weight의 값을 더해서 노드 1은 60, 노드 2은 80으로 최종적으로 노드2에 할당이 된다.
@@ -226,7 +226,7 @@ key가 us인 node weight는 10이고, kr인 node weight는 50인데, 스케쥴�
 
 - Node Affinity와 같이 required와 preferred 속성을 쓸 수 있음
 
-<img src=./image/pod4-5.PNG>
+<img src=../image/pod4-5.PNG>
 
 - type:app이라는 라벨을 가진 web 파드가 node1에 할당이 됨.
 - server pod는 PodAffinity를 통해 matchExprssions로 node가 아닌 pod에 매칭되는 label을 찾도록 함. -> web pod와 같이 노드1에 할당이 될 수 있음.
@@ -237,7 +237,7 @@ key가 us인 node weight는 10이고, kr인 node weight는 50인데, 스케쥴�
 
 ---
 
-<img src=./image/pod4-6.PNG>
+<img src=../image/pod4-6.PNG>
 
 - master pod가 node4에 할당이 됨.
 - slave pod에는 podAntiAffinity에다 master1의 라벨을 달면, master1이 할당된 node와는 다른 노드로 할당시켜준다.
@@ -246,7 +246,7 @@ key가 us인 node weight는 10이고, kr인 node weight는 50인데, 스케쥴�
 
 ---
 
-<img src=./image/pod4-7.PNG>
+<img src=../image/pod4-7.PNG>
 
 - node1은 gpu가 구성되어 있음.
 - 일반적인 pod들이 node1으로 할당되지 않기 위해 Taint를 설정
