@@ -331,7 +331,7 @@ kubeadm 툴은 kube-proxy를 각 노드에 파드로 배포한다.
 
 <br>
 
-## Recap - PDS
+## Recap - PODS
 
 <br>
 
@@ -440,6 +440,7 @@ spec:
 |Service|v1|
 |Deployment|apps/v1|
 |ReplicaSet|apps/v1|
+
 apiVersion, kind, metadata, spec은 필수 요소   
 metadata : 해당 오브젝트에 관한 데이터를 가지고 있다.   
 metadata의 이름과 라벨 앞에 공백 수는 중요하지 않지만, 같은 선상에 있어야 한다.   
@@ -557,7 +558,8 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-	type: front-end
+      type: front-end
+	
 ```
 ```
 kubectl create –f deployment-definition.yaml
