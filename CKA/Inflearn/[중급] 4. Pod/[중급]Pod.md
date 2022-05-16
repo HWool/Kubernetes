@@ -128,16 +128,15 @@ k8s는 /health가 있는지 확인을 할 것이다. 만약 3회동안 실패를
 
 <img src=../image/pod3-1.PNG>
 
-1. Node에 resource가 있고, pod들이 이 자원을 균등하게 사용하고 있을 때,
-   pod1에서 더 많은 자원이 필요한 상황이 발생했다. 하지만 node에는 자원양이 남아 있지 않는데, 이러면 pod1은 자원 부족으로 down이 되어야 할까?
-   아니면 pod2나 pod3를 다운시키고 자원을 할당시켜줘야 할까?
+Node에 resource가 있고, pod들이 이 자원을 균등하게 사용하고 있을 때, pod1에서 더 많은 자원이 필요한 상황이 발생했다.   
+하지만 node에는 자원양이 남아 있지 않는데, 이러면 pod1은 자원 부족으로 down이 되어야 할까?   
+아니면 pod2나 pod3를 다운시키고 자원을 할당시켜줘야 할까?
 
 k8s는 app의 중요도에 따라 3가지 단계로 QoS를 제공해준다.
 
-위와 같은 상황에서는 BestEffot가 부여된 pod가 먼저 down이 되고, pod1에게 자원을 할당해줄 것이다.
-
-2. node에 자원이 남아 있지만 pod2에서 그보다 많은 자원을 필요로 한다면,
-   `Burstable`이 부여된 pod가 down이 된다. Guranteed가 가장 마지막까지 파드를 안정적으로 유지 시켜주는 class이다.
+1. 위와 같은 상황에서는 BestEffot가 부여된 pod가 먼저 down이 되고, pod1에게 자원을 할당해줄 것이다.
+2. node에 자원이 남아 있지만 pod2에서 그보다 많은 자원을 필요로 한다면, `Burstable`이 부여된 pod가 down이 된다. 
+3. Guranteed가 가장 마지막까지 파드를 안정적으로 유지 시켜주는 class이다.
 
 QoS는 특정 속성이 있어서 설정을 하는 것은 아니고, container의 resource설정 부문에서 requests와 limit 에 따라서 mem과 cpu를 어떻게 설정하는지에 따라 결정이 된다.
 
